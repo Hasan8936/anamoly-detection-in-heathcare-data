@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 
 # Configure Streamlit page
 st.set_page_config(
-    page_title="CyberGuard AI - IoT Security Intelligence",
+    page_title="DIRA' - IoT Security Intelligence",
     page_icon="🛡️",
     layout="wide",
     initial_sidebar_state="expanded"
