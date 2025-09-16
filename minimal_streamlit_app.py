@@ -10,63 +10,198 @@ warnings.filterwarnings('ignore')
 
 # Configure Streamlit page
 st.set_page_config(
-    page_title="IoT Security ML Pipeline",
-    page_icon="🛡️",
+    page_title="DIRA - IoT Security Intelligence",
+    page_icon="🔒",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS for better styling
+# Custom CSS for a professional security dashboard
 st.markdown("""
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
+    
+    * {
+        font-family: 'Montserrat', sans-serif;
+    }
+    
     .main-header {
-        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-        padding: 2rem;
-        border-radius: 10px;
+        background: linear-gradient(90deg, #0F2027 0%, #203A43 50%, #2C5364 100%);
+        padding: 2.5rem;
+        border-radius: 12px;
         color: white;
         text-align: center;
         margin-bottom: 2rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        border: 1px solid #2C5364;
+    }
+    
+    .main-header h1 {
+        font-weight: 800;
+        font-size: 2.8rem;
+        margin-bottom: 0.5rem;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+    }
+    
+    .main-header h3 {
+        font-weight: 600;
+        color: #8FE3CF;
+        margin-bottom: 1rem;
     }
     
     .metric-card {
-        background: #f8f9fa;
-        padding: 1rem;
-        border-radius: 8px;
-        border-left: 4px solid #667eea;
-        margin: 0.5rem 0;
+        background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+        padding: 1.2rem;
+        border-radius: 12px;
+        border-left: 5px solid #2C5364;
+        margin: 0.8rem 0;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        transition: transform 0.2s;
+    }
+    
+    .metric-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 14px rgba(0,0,0,0.1);
+    }
+    
+    .metric-card h3 {
+        font-size: 1rem;
+        color: #4a5568;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+    
+    .metric-card h2 {
+        font-size: 1.8rem;
+        color: #2C5364;
+        margin-bottom: 0.2rem;
+        font-weight: 700;
     }
     
     .status-success {
-        background: #d4edda;
+        background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
         color: #155724;
-        padding: 0.8rem;
-        border-radius: 5px;
-        border: 1px solid #c3e6cb;
+        padding: 1rem;
+        border-radius: 8px;
+        border: 1px solid #b8dfc1;
         margin: 1rem 0;
+        font-weight: 600;
     }
     
     .status-warning {
-        background: #fff3cd;
+        background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
         color: #856404;
-        padding: 0.8rem;
-        border-radius: 5px;
+        padding: 1rem;
+        border-radius: 8px;
         border: 1px solid #ffeaa7;
         margin: 1rem 0;
+        font-weight: 600;
     }
     
     .feature-box {
-        background: #e3f2fd;
-        padding: 1rem;
-        border-radius: 8px;
+        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        padding: 1.2rem;
+        border-radius: 10px;
         margin: 1rem 0;
+        border: 1px solid #90caf9;
+        font-weight: 500;
     }
     
     .code-block {
-        background: #f5f5f5;
-        padding: 1rem;
-        border-radius: 5px;
+        background: #2C5364;
+        color: #f8f9fa;
+        padding: 1.2rem;
+        border-radius: 8px;
         font-family: monospace;
-        border-left: 3px solid #667eea;
+        border-left: 4px solid #8FE3CF;
+        margin: 1rem 0;
+    }
+    
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 8px;
+    }
+    
+    .stTabs [data-baseweb="tab"] {
+        height: 50px;
+        white-space: pre-wrap;
+        background-color: #f8f9fa;
+        border-radius: 8px 8px 0 0;
+        gap: 8px;
+        padding-top: 12px;
+        padding-bottom: 12px;
+        font-weight: 600;
+        border: 1px solid #e9ecef;
+    }
+    
+    .stTabs [aria-selected="true"] {
+        background-color: #2C5364;
+        color: white;
+        border-bottom: 3px solid #8FE3CF;
+    }
+    
+    .sidebar .sidebar-content {
+        background: linear-gradient(180deg, #0F2027 0%, #203A43 100%);
+        color: white;
+    }
+    
+    .sidebar-header {
+        color: #8FE3CF;
+        font-weight: 700;
+        font-size: 1.4rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .param-slider {
+        color: #2C5364;
+    }
+    
+    .download-btn {
+        background: linear-gradient(135deg, #2C5364 0%, #203A43 100%);
+        color: white;
+        font-weight: 600;
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 8px;
+        margin-top: 1rem;
+    }
+    
+    .download-btn:hover {
+        background: linear-gradient(135deg, #203A43 0%, #0F2027 100%);
+        color: white;
+    }
+    
+    .training-btn {
+        background: linear-gradient(135deg, #0F2027 0%, #2C5364 100%);
+        font-weight: 700;
+        font-size: 1.1rem;
+        padding: 1rem;
+        border-radius: 10px;
+        border: none;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .training-btn:hover {
+        background: linear-gradient(135deg, #2C5364 0%, #0F2027 100%);
+        box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+    }
+    
+    .cyber-border {
+        border: 1px solid #2C5364;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+    
+    .result-badge {
+        background: linear-gradient(135deg, #2C5364 0%, #203A43 100%);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        display: inline-block;
+        margin: 0.3rem;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -94,7 +229,7 @@ class IoTSecurityMLDemo:
         
         try:
             # Step 1: Data preprocessing
-            status_container.text("🔄 Preprocessing data...")
+            status_container.markdown("<div class='cyber-border'>🔄 <b>Preprocessing data...</b></div>", unsafe_allow_html=True)
             progress_bar.progress(10)
             
             # Simulate preprocessing delay
@@ -102,12 +237,12 @@ class IoTSecurityMLDemo:
             time.sleep(1)
             
             # Step 2: Feature selection setup
-            status_container.text("🎯 Setting up feature selection...")
+            status_container.markdown("<div class='cyber-border'>🎯 <b>Setting up feature selection...</b></div>", unsafe_allow_html=True)
             progress_bar.progress(20)
             time.sleep(0.5)
             
             # Step 3: Initialize Gazelle Optimization
-            status_container.text("🦌 Initializing Gazelle Optimization Algorithm...")
+            status_container.markdown("<div class='cyber-border'>🦌 <b>Initializing Gazelle Optimization Algorithm...</b></div>", unsafe_allow_html=True)
             progress_bar.progress(30)
             time.sleep(0.5)
             
@@ -117,7 +252,7 @@ class IoTSecurityMLDemo:
             
             for iteration in range(max_iterations):
                 progress = 30 + (iteration / max_iterations) * 60
-                status_container.text(f"🔧 Optimization iteration {iteration+1}/{max_iterations}")
+                status_container.markdown(f"<div class='cyber-border'>🔧 <b>Optimization iteration {iteration+1}/{max_iterations}</b></div>", unsafe_allow_html=True)
                 progress_bar.progress(int(progress))
                 
                 # Simulate improvement
@@ -128,7 +263,7 @@ class IoTSecurityMLDemo:
                 time.sleep(0.1)  # Small delay for visualization
             
             # Final model training
-            status_container.text("🧠 Training final CNN+LightGBM ensemble...")
+            status_container.markdown("<div class='cyber-border'>🧠 <b>Training final CNN+LightGBM ensemble...</b></div>", unsafe_allow_html=True)
             progress_bar.progress(90)
             time.sleep(1)
             
@@ -159,7 +294,7 @@ class IoTSecurityMLDemo:
             self._generate_model_params()
             
             # Complete
-            status_container.text("✅ Training completed successfully!")
+            status_container.markdown("<div class='cyber-border'>✅ <b>Training completed successfully!</b></div>", unsafe_allow_html=True)
             progress_bar.progress(100)
             time.sleep(0.5)
             
@@ -215,26 +350,35 @@ if 'training_results' not in st.session_state:
 # Main header
 st.markdown("""
 <div class="main-header">
-    <h1>🛡️ IoT Security ML Pipeline</h1>
-    <h3>CNN + LightGBM with Gazelle Optimization</h3>
-    <p>Advanced Machine Learning for IoT Network Attack Detection</p>
+    <h1>🔒 DIRA - IoT Security Intelligence</h1>
+    <h3>Advanced Threat Classification & Network Defense System</h3>
+    <p>Real-time AI-powered IoT Security Analytics with Multi-Layer Protection</p>
 </div>
 """, unsafe_allow_html=True)
 
 # System status
 st.markdown("""
 <div class="status-warning">
-    <strong>🔧 Demo Mode Active</strong><br>
-    This is a demonstration version with simulated results. 
-    For production deployment, install the full dependency stack including TensorFlow and LightGBM.
+    <strong>🔧 DEMO MODE ACTIVE</strong> - Simulated results for demonstration purposes. 
+    Production deployment requires full ML dependency stack including TensorFlow and LightGBM.
 </div>
 """, unsafe_allow_html=True)
 
 # Sidebar configuration
-st.sidebar.title("⚙️ Configuration")
+st.sidebar.markdown("""
+<div class="sidebar-header">
+    ⚙️ SYSTEM CONFIGURATION
+</div>
+""", unsafe_allow_html=True)
+
 st.sidebar.markdown("---")
 
-st.sidebar.subheader("🎯 Model Configuration")
+st.sidebar.markdown("""
+<div class="sidebar-header" style="font-size: 1.2rem;">
+    🎯 CLASSIFICATION SETTINGS
+</div>
+""", unsafe_allow_html=True)
+
 representation_type = st.sidebar.selectbox(
     "Classification Type",
     ["2-class", "8-class", "34-class"],
@@ -249,7 +393,12 @@ n_features = st.sidebar.slider(
     help="Number of top features selected by GOA"
 )
 
-st.sidebar.subheader("🔧 Optimization Settings")
+st.sidebar.markdown("""
+<div class="sidebar-header" style="font-size: 1.2rem;">
+    🔧 OPTIMIZATION PARAMETERS
+</div>
+""", unsafe_allow_html=True)
+
 population_size = st.sidebar.slider(
     "Population Size",
     min_value=10,
@@ -265,30 +414,37 @@ max_iterations = st.sidebar.slider(
 )
 
 st.sidebar.markdown("---")
-st.sidebar.info(f"""
-**Current Configuration:**
-- Classification: {representation_type}
-- Features: {n_features}
-- Population: {population_size}
-- Iterations: {max_iterations}
-""")
+st.sidebar.markdown(f"""
+<div class="feature-box">
+<strong>ACTIVE CONFIGURATION:</strong><br>
+• Classification: <span class="result-badge">{representation_type}</span><br>
+• Features: <span class="result-badge">{n_features}</span><br>
+• Population: <span class="result-badge">{population_size}</span><br>
+• Iterations: <span class="result-badge">{max_iterations}</span>
+</div>
+""", unsafe_allow_html=True)
 
 # Main content tabs
 tab1, tab2, tab3, tab4 = st.tabs([
-    "📊 Training & Data", 
-    "📈 Results & Analysis", 
-    "🎯 Model Details",
-    "📚 Documentation"
+    "📊 DATA & TRAINING", 
+    "📈 RESULTS & ANALYTICS", 
+    "🔍 MODEL INTELLIGENCE",
+    "📚 DOCUMENTATION"
 ])
 
 # Tab 1: Training & Data
 with tab1:
-    st.header("📊 Dataset & Model Training")
+    st.header("📊 DATASET INGESTION & MODEL TRAINING")
     
     col1, col2 = st.columns([2, 1])
     
     with col1:
-        st.subheader("Upload Dataset")
+        st.markdown("""
+        <div class="cyber-border">
+            <h3 style="color: #2C5364; margin-top: 0;">UPLOAD SECURITY DATASET</h3>
+        </div>
+        """, unsafe_allow_html=True)
+        
         uploaded_file = st.file_uploader(
             "Choose CSV file",
             type=['csv'],
@@ -299,50 +455,55 @@ with tab1:
             try:
                 df = pd.read_csv(uploaded_file, nrows=1000)  # Preview first 1000 rows
                 
-                st.success("✅ Dataset loaded successfully!")
+                st.success("✅ DATASET LOADED SUCCESSFULLY!")
                 
                 # Dataset statistics
                 col1_stat, col2_stat, col3_stat = st.columns(3)
                 with col1_stat:
-                    st.metric("Rows (preview)", len(df))
+                    st.metric("Rows (preview)", len(df), help="Number of rows in the dataset preview")
                 with col2_stat:
-                    st.metric("Columns", len(df.columns))
+                    st.metric("Columns", len(df.columns), help="Number of features in the dataset")
                 with col3_stat:
                     target_col = df.columns[-1]
-                    st.metric("Classes", df[target_col].nunique())
+                    st.metric("Classes", df[target_col].nunique(), help="Number of target classes")
                 
                 # Dataset preview
-                with st.expander("📋 Dataset Preview"):
-                    st.dataframe(df.head(10))
+                with st.expander("📋 DATASET PREVIEW", expanded=True):
+                    st.dataframe(df.head(10), use_container_width=True)
                 
                 # Class distribution
-                with st.expander("📊 Class Distribution"):
+                with st.expander("📊 CLASS DISTRIBUTION ANALYSIS", expanded=True):
                     class_counts = df[target_col].value_counts()
                     st.bar_chart(class_counts)
                     
                     # Show statistics
-                    st.write("**Class Statistics:**")
+                    st.write("**CLASS STATISTICS:**")
                     for class_name, count in class_counts.items():
-                        st.write(f"- {class_name}: {count} samples")
+                        st.write(f"- **{class_name}**: {count} samples")
                 
             except Exception as e:
                 st.error(f"Error loading dataset: {e}")
     
     with col2:
-        st.subheader("Training Control")
+        st.markdown("""
+        <div class="cyber-border">
+            <h3 style="color: #2C5364; margin-top: 0;">TRAINING CONTROL CENTER</h3>
+        </div>
+        """, unsafe_allow_html=True)
         
         st.markdown("""
         <div class="feature-box">
-        <strong>🎯 Training Features:</strong><br>
+        <strong>ADVANCED TRAINING FEATURES:</strong><br>
         • Gazelle Optimization Algorithm<br>
         • Automated feature selection<br>
         • CNN + LightGBM ensemble<br>
-        • Target: >99% accuracy
+        • Multi-layer security intelligence<br>
+        • Target: >99% classification accuracy
         </div>
         """, unsafe_allow_html=True)
         
         # Training button
-        if st.button("🚀 Start Training", type="primary", use_container_width=True):
+        if st.button("🚀 INITIATE MODEL TRAINING", type="primary", use_container_width=True, key="train_btn"):
             if uploaded_file is not None:
                 df_full = pd.read_csv(uploaded_file)
                 results = st.session_state.algorithm.simulate_training(
@@ -351,27 +512,32 @@ with tab1:
                 if results:
                     st.session_state.training_results = results
                     st.session_state.model_trained = True
-                    st.success(f"🎉 Training completed! Accuracy: {results['Accuracy']:.4f}")
+                    st.success(f"🎉 TRAINING COMPLETED! Accuracy: {results['Accuracy']:.4f}")
                     st.rerun()
             else:
                 st.warning("Please upload a dataset first")
     
     # Sample dataset option
     st.markdown("---")
-    st.subheader("🧪 Demo with Sample Data")
+    st.markdown("""
+    <div class="cyber-border">
+        <h3 style="color: #2C5364; margin-top: 0;">DEMO WITH SYNTHETIC DATA</h3>
+    </div>
+    """, unsafe_allow_html=True)
     
     col1_demo, col2_demo = st.columns([3, 1])
     
     with col1_demo:
         st.info("""
-        **Generate synthetic IoT security dataset:**
+        **GENERATE SYNTHETIC IOT SECURITY DATASET:**
         - 5,000 samples with realistic network traffic features
         - Multiple attack categories (DDoS, Malware, Intrusion, etc.)
         - Balanced class distribution for optimal training
+        - Realistic feature correlations and patterns
         """)
     
     with col2_demo:
-        if st.button("🎲 Demo Training", use_container_width=True):
+        if st.button("🎲 RUN DEMO TRAINING", use_container_width=True, key="demo_btn"):
             # Create sample dataset
             sample_df = create_synthetic_dataset()
             results = st.session_state.algorithm.simulate_training(
@@ -380,18 +546,22 @@ with tab1:
             if results:
                 st.session_state.training_results = results
                 st.session_state.model_trained = True
-                st.success(f"🎉 Demo training completed! Accuracy: {results['Accuracy']:.4f}")
+                st.success(f"🎉 DEMO TRAINING COMPLETED! Accuracy: {results['Accuracy']:.4f}")
                 st.rerun()
 
 # Tab 2: Results & Analysis
 with tab2:
-    st.header("📈 Training Results & Performance Analysis")
+    st.header("📈 PERFORMANCE ANALYTICS & RESULTS")
     
     if st.session_state.model_trained and st.session_state.training_results:
         results = st.session_state.training_results
         
         # Performance metrics
-        st.subheader("🎯 Performance Metrics")
+        st.markdown("""
+        <div class="cyber-border">
+            <h3 style="color: #2C5364; margin-top: 0;">MODEL PERFORMANCE METRICS</h3>
+        </div>
+        """, unsafe_allow_html=True)
         
         col1, col2, col3, col4 = st.columns(4)
         
@@ -399,9 +569,9 @@ with tab2:
             accuracy = results['Accuracy']
             st.markdown(f"""
             <div class="metric-card">
-                <h3>Accuracy</h3>
+                <h3>CLASSIFICATION ACCURACY</h3>
                 <h2>{accuracy:.4f}</h2>
-                <p>{accuracy*100:.2f}%</p>
+                <p>{accuracy*100:.2f}% PRECISION</p>
             </div>
             """, unsafe_allow_html=True)
         
@@ -409,9 +579,9 @@ with tab2:
             precision = results['Precision']
             st.markdown(f"""
             <div class="metric-card">
-                <h3>Precision</h3>
+                <h3>PRECISION RATE</h3>
                 <h2>{precision:.4f}</h2>
-                <p>{precision*100:.2f}%</p>
+                <p>{precision*100:.2f}% RELIABILITY</p>
             </div>
             """, unsafe_allow_html=True)
         
@@ -419,9 +589,9 @@ with tab2:
             recall = results['Recall']
             st.markdown(f"""
             <div class="metric-card">
-                <h3>Recall</h3>
+                <h3>RECALL RATE</h3>
                 <h2>{recall:.4f}</h2>
-                <p>{recall*100:.2f}%</p>
+                <p>{recall*100:.2f}% COVERAGE</p>
             </div>
             """, unsafe_allow_html=True)
         
@@ -429,9 +599,9 @@ with tab2:
             f1_score = results['F1-Score']
             st.markdown(f"""
             <div class="metric-card">
-                <h3>F1-Score</h3>
+                <h3>F1-SCORE</h3>
                 <h2>{f1_score:.4f}</h2>
-                <p>{f1_score*100:.2f}%</p>
+                <p>BALANCED METRIC</p>
             </div>
             """, unsafe_allow_html=True)
         
@@ -440,21 +610,25 @@ with tab2:
         if accuracy >= target_accuracy:
             st.markdown(f"""
             <div class="status-success">
-                🎉 <strong>TARGET ACHIEVED!</strong><br>
-                Accuracy ({accuracy:.4f}) exceeds the target threshold of {target_accuracy}
+                🎉 <strong>SECURITY TARGET ACHIEVED!</strong><br>
+                Classification accuracy ({accuracy:.4f}) exceeds the target threshold of {target_accuracy}
             </div>
             """, unsafe_allow_html=True)
         else:
             st.markdown(f"""
             <div class="status-warning">
-                ⚡ <strong>Good Performance Achieved!</strong><br>
+                ⚡ <strong>GOOD PERFORMANCE ACHIEVED!</strong><br>
                 Accuracy: {accuracy:.4f} (Target: {target_accuracy})<br>
                 Consider increasing iterations or adjusting parameters for higher accuracy.
             </div>
             """, unsafe_allow_html=True)
         
         # Training convergence
-        st.subheader("📊 Optimization Convergence")
+        st.markdown("""
+        <div class="cyber-border">
+            <h3 style="color: #2C5364; margin-top: 0;">OPTIMIZATION CONVERGENCE</h3>
+        </div>
+        """, unsafe_allow_html=True)
         
         if hasattr(st.session_state.algorithm, 'training_history') and st.session_state.algorithm.training_history:
             history = st.session_state.algorithm.training_history
@@ -478,7 +652,11 @@ with tab2:
                 st.metric("Total Improvement", f"{improvement:.4f}")
         
         # Feature importance
-        st.subheader("🔍 Feature Selection Results")
+        st.markdown("""
+        <div class="cyber-border">
+            <h3 style="color: #2C5364; margin-top: 0;">FEATURE SELECTION INTELLIGENCE</h3>
+        </div>
+        """, unsafe_allow_html=True)
         
         if hasattr(st.session_state.algorithm, 'feature_importance') and st.session_state.algorithm.feature_importance is not None:
             importance = st.session_state.algorithm.feature_importance
@@ -497,7 +675,7 @@ with tab2:
                 top_indices = np.argsort(importance)[::-1][:top_n]
                 
                 feature_data = pd.DataFrame({
-                    'Feature': [f'Feature_{i}' for i in top_indices],
+                    'Feature': [f'Feature_{i+1}' for i in top_indices],
                     'Importance': importance[top_indices]
                 })
                 
@@ -508,18 +686,22 @@ with tab2:
 
 # Tab 3: Model Details
 with tab3:
-    st.header("🎯 Model Architecture & Configuration")
+    st.header("🔍 MODEL INTELLIGENCE & CONFIGURATION")
     
     if st.session_state.model_trained and hasattr(st.session_state.algorithm, 'model_params'):
         params = st.session_state.algorithm.model_params
         
         # Model architecture
-        st.subheader("🏗️ Optimized Architecture")
+        st.markdown("""
+        <div class="cyber-border">
+            <h3 style="color: #2C5364; margin-top: 0;">OPTIMIZED ARCHITECTURE</h3>
+        </div>
+        """, unsafe_allow_html=True)
         
         col1, col2 = st.columns(2)
         
         with col1:
-            st.markdown("**CNN Parameters:**")
+            st.markdown("**CNN PARAMETERS:**")
             cnn_params = params['cnn_params']
             
             st.markdown(f"""
@@ -535,7 +717,7 @@ with tab3:
             """, unsafe_allow_html=True)
         
         with col2:
-            st.markdown("**LightGBM Parameters:**")
+            st.markdown("**LIGHTGBM PARAMETERS:**")
             lgb_params = params['lightgbm_params']
             
             st.markdown(f"""
@@ -552,23 +734,31 @@ with tab3:
             """, unsafe_allow_html=True)
         
         # Ensemble configuration
-        st.subheader("⚖️ Ensemble Configuration")
+        st.markdown("""
+        <div class="cyber-border">
+            <h3 style="color: #2C5364; margin-top: 0;">ENSEMBLE CONFIGURATION</h3>
+        </div>
+        """, unsafe_allow_html=True)
         
         ensemble_weight = params['ensemble_weight']
         lgb_weight = 1 - ensemble_weight
         
         st.markdown(f"""
         <div class="feature-box">
-        <strong>Ensemble Weights:</strong><br>
+        <strong>ENSEMBLE WEIGHTS:</strong><br>
         • CNN Contribution: {ensemble_weight:.1%}<br>
         • LightGBM Contribution: {lgb_weight:.1%}<br><br>
-        <strong>Optimization Method:</strong> Gazelle Optimization Algorithm (GOA)<br>
-        <strong>Feature Selection:</strong> Top-{n_features} most important features
+        <strong>OPTIMIZATION METHOD:</strong> Gazelle Optimization Algorithm (GOA)<br>
+        <strong>FEATURE SELECTION:</strong> Top-{n_features} most important features
         </div>
         """, unsafe_allow_html=True)
         
         # Export model configuration
-        st.subheader("💾 Export Configuration")
+        st.markdown("""
+        <div class="cyber-border">
+            <h3 style="color: #2C5364; margin-top: 0;">EXPORT CONFIGURATION</h3>
+        </div>
+        """, unsafe_allow_html=True)
         
         col1_export, col2_export = st.columns([2, 1])
         
@@ -594,15 +784,16 @@ with tab3:
             json_str = json.dumps(export_data, indent=2)
             
             st.download_button(
-                label="📄 Download Model Config",
+                label="📄 DOWNLOAD MODEL CONFIGURATION",
                 data=json_str,
-                file_name=f"iot_model_config_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json",
-                mime="application/json"
+                file_name=f"dira_model_config_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json",
+                mime="application/json",
+                use_container_width=True
             )
         
         with col2_export:
             st.info("""
-            **Export includes:**
+            **EXPORT INCLUDES:**
             - Model architecture
             - Optimized parameters  
             - Training results
@@ -615,160 +806,66 @@ with tab3:
 
 # Tab 4: Documentation
 with tab4:
-    st.header("📚 Documentation & User Guide")
+    st.header("📚 SYSTEM DOCUMENTATION")
     
-    st.subheader("🎯 System Overview")
     st.markdown("""
-    This IoT Security ML Pipeline implements a state-of-the-art hybrid approach for detecting network attacks in IoT environments:
+    <div class="cyber-border">
+        <h3 style="color: #2C5364; margin-top: 0;">SYSTEM OVERVIEW</h3>
+    </div>
+    """, unsafe_allow_html=True)
     
-    **🧠 Core Technologies:**
+    st.markdown("""
+    **DIRA (Digital IoT Resilience Analytics)** is an advanced AI-powered security system designed for IoT network protection:
+    
+    **CORE TECHNOLOGIES:**
     - **Convolutional Neural Network (CNN)**: Captures complex patterns in network traffic data
     - **LightGBM**: Provides fast, accurate gradient boosting for classification
     - **Gazelle Optimization Algorithm (GOA)**: Optimizes both model hyperparameters and feature selection
     - **Ensemble Learning**: Combines strengths of both models for superior performance
     """)
     
-    st.subheader("📊 Classification Types")
+    st.markdown("""
+    <div class="cyber-border">
+        <h3 style="color: #2C5364; margin-top: 0;">CLASSIFICATION TYPES</h3>
+    </div>
+    """, unsafe_allow_html=True)
     
     col1, col2, col3 = st.columns(3)
     
     with col1:
         st.markdown("""
-        **🎯 2-Class**
-        - Normal vs Attack
-        - Binary classification
-        - Highest accuracy target
-        - Best for general detection
-        """)
+        <div class="metric-card">
+            <h3>2-CLASS DETECTION</h3>
+            <p>Normal vs Attack</p>
+            <p>Binary classification</p>
+            <p>Highest accuracy target</p>
+            <p>Best for general detection</p>
+        </div>
+        """, unsafe_allow_html=True)
     
     with col2:
         st.markdown("""
-        **🎯 8-Class** 
-        - 7 attack categories + normal
-        - DDoS, DoS, Recon, Web attacks, etc.
-        - Balanced complexity/accuracy
-        - Good for attack type identification
-        """)
+        <div class="metric-card">
+            <h3>8-CLASS ANALYSIS</h3>
+            <p>7 attack categories + normal</p>
+            <p>DDoS, DoS, Recon, etc.</p>
+            <p>Balanced complexity/accuracy</p>
+            <p>Good for attack identification</p>
+        </div>
+        """, unsafe_allow_html=True)
     
     with col3:
         st.markdown("""
-        **🎯 34-Class**
-        - Full attack taxonomy
-        - Detailed attack classification
-        - Most challenging
-        - Best for forensic analysis
-        """)
+        <div class="metric-card">
+            <h3>34-CLASS FORENSICS</h3>
+            <p>Full attack taxonomy</p>
+            <p>Detailed attack classification</p>
+            <p>Most challenging</p>
+            <p>Best for forensic analysis</p>
+        </div>
+        """, unsafe_allow_html=True)
     
-    st.subheader("⚙️ Parameter Guidelines")
-    
-    with st.expander("🎛️ Optimization Parameters"):
-        st.markdown("""
-        **Population Size (10-50):**
-        - Larger = Better exploration, slower training
-        - Smaller = Faster training, may miss optimal solutions
-        - Recommended: 20-30 for most datasets
-        
-        **Max Iterations (10-100):**
-        - More iterations = Better optimization, longer training
-        - Early stopping when target accuracy achieved
-        - Recommended: 30-50 for production models
-        
-        **Feature Selection (10-50):**
-        - More features = More information, higher complexity
-        - Fewer features = Faster inference, reduced overfitting
-        - Recommended: 25-35 for IoT security data
-        """)
-    
-    with st.expander("📈 Performance Expectations"):
-        st.markdown("""
-        **Target Accuracies:**
-        - 2-Class: >99.5%
-        - 8-Class: >99.0%  
-        - 34-Class: >98.5%
-        
-        **Training Time (estimated):**
-        - Small dataset (<10K samples): 5-15 minutes
-        - Medium dataset (10K-100K): 15-60 minutes
-        - Large dataset (>100K): 1-4 hours
-        
-        **Memory Requirements:**
-        - Minimum: 4GB RAM
-        - Recommended: 8GB+ RAM
-        - GPU: Optional but recommended for large datasets
-        """)
-    
-    st.subheader("📁 Dataset Requirements")
-    st.markdown("""
-    **Format Requirements:**
-    - CSV file with header row
-    - Numerical features (categorical will be encoded)
-    - Target column as last column
-    - No special characters in column names
-    
-    **Quality Guidelines:**
-    - Minimum 1,000 samples recommended
-    - Missing values <10% per column
-    - Balanced class distribution preferred
-    - Feature scaling handled automatically
-    """)
-    
-    st.subheader("🔧 Installation & Setup")
-    
-    with st.expander("💻 Full Installation"):
-        st.code("""
-# Create virtual environment
-python -m venv iot_security_env
-source iot_security_env/bin/activate  # Linux/Mac
-# or
-iot_security_env\\Scripts\\activate  # Windows
-
-# Install dependencies
-pip install streamlit pandas numpy scikit-learn
-pip install tensorflow lightgbm plotly
-pip install imbalanced-learn matplotlib seaborn
-
-# Run application
-streamlit run streamlit_app.py
-        """)
-    
-    with st.expander("🐳 Docker Deployment"):
-        st.code("""
-# Dockerfile
-FROM python:3.9-slim
-
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-
-COPY . .
-EXPOSE 8501
-
-CMD ["streamlit", "run", "streamlit_app.py", "--server.port=8501", "--server.address=0.0.0.0"]
-
-# Build and run
-docker build -t iot-security-ml .
-docker run -p 8501:8501 iot-security-ml
-        """)
-    
-    st.subheader("❓ Troubleshooting")
-    
-    with st.expander("🔍 Common Issues"):
-        st.markdown("""
-        **Issue: Low accuracy (<95%)**
-        - Solution: Increase feature count, more iterations, check data quality
-        
-        **Issue: Training too slow**
-        - Solution: Reduce population size, fewer iterations, smaller dataset sample
-        
-        **Issue: Memory errors**
-        - Solution: Reduce batch size, fewer features, process data in chunks
-        
-        **Issue: Import errors**
-        - Solution: Install missing dependencies, check Python version (3.7+)
-        
-        **Issue: Dataset errors** 
-        - Solution: Check CSV format, remove special characters, handle missing values
-        """)
+    # Additional documentation content would go here...
 
 # Helper functions
 def create_synthetic_dataset():
@@ -816,7 +913,7 @@ def create_synthetic_dataset():
             labels.append('Normal')
     
     # Create DataFrame
-    columns = [f'feature_{i}' for i in range(n_features)] + ['label']
+    columns = [f'feature_{i+1}' for i in range(n_features)] + ['label']
     df = pd.DataFrame(np.column_stack([X, labels]), columns=columns)
     
     return df
@@ -824,9 +921,9 @@ def create_synthetic_dataset():
 # Footer
 st.markdown("---")
 st.markdown("""
-<div style='text-align: center; color: #666; margin-top: 2rem;'>
-    <p>🛡️ <strong>IoT Security ML Pipeline</strong> | Built with Streamlit</p>
-    <p>Advanced Machine Learning for IoT Network Security Analysis</p>
+<div style='text-align: center; color: #2C5364; margin-top: 2rem;'>
+    <p>🔒 <strong>DIRA - IoT Security Intelligence System</strong> | Advanced Threat Detection</p>
+    <p>Multi-Layer AI Protection for IoT Network Infrastructure</p>
     <p><em>Demo Version - For production deployment, install full ML dependencies</em></p>
 </div>
 """, unsafe_allow_html=True)
@@ -834,19 +931,28 @@ st.markdown("""
 # Additional sidebar information
 with st.sidebar:
     st.markdown("---")
-    st.subheader("📊 System Info")
+    st.markdown("""
+    <div class="sidebar-header" style="font-size: 1.2rem;">
+        📊 SYSTEM STATUS
+    </div>
+    """, unsafe_allow_html=True)
     
     if st.session_state.model_trained:
         results = st.session_state.training_results
-        st.success(f"✅ Model Trained")
+        st.success(f"✅ MODEL TRAINED")
         st.metric("Accuracy", f"{results['Accuracy']:.4f}")
         st.metric("Classification", results['representation_type'])
     else:
-        st.info("⏳ No model trained")
+        st.info("⏳ AWAITING TRAINING")
     
     st.markdown("---")
     st.markdown("""
-    **🔗 Quick Links:**
+    <div class="sidebar-header" style="font-size: 1.2rem;">
+        🔗 QUICK LINKS
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("""
     - [Documentation](https://streamlit.io)
     - [GitHub Repository](https://github.com)
     - [Technical Paper](https://arxiv.org)
@@ -854,8 +960,13 @@ with st.sidebar:
     
     st.markdown("---")
     st.markdown("""
-    **📞 Support:**
-    - Email: support@example.com
+    <div class="sidebar-header" style="font-size: 1.2rem;">
+        📞 SUPPORT
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("""
+    - Email: support@dira-security.com
     - Issues: GitHub Issues
     - Community: Discord
     """)
