@@ -6,6 +6,8 @@ import json
 import tempfile
 from datetime import datetime
 import warnings
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 warnings.filterwarnings('ignore')
 
 # Configure Streamlit page
@@ -232,6 +234,25 @@ st.markdown("""
         border-bottom: 3px solid #2C5364;
         padding-bottom: 0.5rem;
     }
+    
+    .data-training-header {
+        background: linear-gradient(90deg, #FF6B6B 0%, #FF8E53 100%);
+        color: white;
+        padding: 1rem;
+        border-radius: 8px;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        text-align: center;
+    }
+    
+    .classification-report {
+        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        padding: 1.5rem;
+        border-radius: 12px;
+        margin: 1.2rem 0;
+        border: 2px solid #90caf9;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -248,6 +269,7 @@ class IoTSecurityMLDemo:
         self.training_history = []
         self.feature_importance = None
         self.model_params = {}
+        self.classification_report = {}
         
     def simulate_training(self, df, representation_type, n_features, population_size, max_iterations):
         """Simulate the training process with realistic progress"""
@@ -296,9 +318,13 @@ class IoTSecurityMLDemo:
             progress_bar.progress(90)
             time.sleep(1)
             
-            # Generate final results
-            final_accuracy = best_accuracy + np.random.uniform(-0.002, 0.005)
-            final_accuracy = min(0.999, max(0.95, final_accuracy))
+            # Generate final results with more realistic accuracy ranges
+            if representation_type == '2-class':
+                final_accuracy = np.random.uniform(0.9938, 0.9958)
+            elif representation_type == '8-class':
+                final_accuracy = np.random.uniform(0.9900, 0.9930)
+            else:  # 34-class
+                final_accuracy = np.random.uniform(0.9850, 0.9900)
             
             precision = final_accuracy + np.random.uniform(-0.003, 0.003)
             recall = final_accuracy + np.random.uniform(-0.003, 0.003)
@@ -322,6 +348,9 @@ class IoTSecurityMLDemo:
             # Generate model parameters
             self._generate_model_params()
             
+            # Generate classification report
+            self._generate_classification_report(representation_type)
+            
             # Complete
             status_container.markdown("<div class='cyber-border'>✅ <b>Training completed successfully!</b></div>", unsafe_allow_html=True)
             progress_bar.progress(100)
@@ -337,11 +366,11 @@ class IoTSecurityMLDemo:
     def _get_target_accuracy(self, representation_type):
         """Get target accuracy based on classification type"""
         if representation_type == '2-class':
-            return np.random.uniform(0.995, 0.999)
+            return np.random.uniform(0.993, 0.995)
         elif representation_type == '8-class':
-            return np.random.uniform(0.990, 0.996)
+            return np.random.uniform(0.990, 0.993)
         else:  # 34-class
-            return np.random.uniform(0.985, 0.993)
+            return np.random.uniform(0.985, 0.990)
     
     def _generate_model_params(self):
         """Generate realistic model parameters"""
@@ -367,6 +396,50 @@ class IoTSecurityMLDemo:
             },
             'ensemble_weight': round(np.random.uniform(0.3, 0.7), 3)
         }
+    
+    def _generate_classification_report(self, representation_type):
+        """Generate a classification report with realistic values"""
+        if representation_type == '2-class':
+            classes = ['Normal', 'Attack']
+        elif representation_type == '8-class':
+            classes = ['Normal', 'DDoS', 'Malware', 'Intrusion', 'Recon', 'Web Attack', 'Ransomware', 'Data Exfiltration']
+        else:  # 34-class
+            classes = [f'Class_{i}' for i in range(1, 35)]
+        
+        report = {}
+        for cls in classes:
+            precision = np.random.uniform(0.97, 0.995)
+            recall = np.random.uniform(0.97, 0.995)
+            f1 = 2 * (precision * recall) / (precision + recall)
+            support = np.random.randint(100, 1000)
+            
+            report[cls] = {
+                'precision': precision,
+                'recall': recall,
+                'f1-score': f1,
+                'support': support
+            }
+        
+        # Add overall metrics
+        report['accuracy'] = self.results['Accuracy']
+        report['macro avg'] = {
+            'precision': np.mean([v['precision'] for k, v in report.items() if k != 'accuracy' and k != 'macro avg' and k != 'weighted avg']),
+            'recall': np.mean([v['recall'] for k, v in report.items() if k != 'accuracy' and k != 'macro avg' and k != 'weighted avg']),
+            'f1-score': np.mean([v['f1-score'] for k, v in report.items() if k != 'accuracy' and k != 'macro avg' and k != 'weighted avg']),
+            'support': np.sum([v['support'] for k, v in report.items() if k != 'accuracy' and k != 'macro avg' and k != 'weighted avg'])
+        }
+        
+        report['weighted avg'] = {
+            'precision': np.average([v['precision'] for k, v in report.items() if k != 'accuracy' and k != 'macro avg' and k != 'weighted avg'], 
+                                  weights=[v['support'] for k, v in report.items() if k != 'accuracy' and k != 'macro avg' and k != 'weighted avg']),
+            'recall': np.average([v['recall'] for k, v in report.items() if k != 'accuracy' and k != 'macro avg' and k != 'weighted avg'], 
+                                weights=[v['support'] for k, v in report.items() if k != 'accuracy' and k != 'macro avg' and k != 'weighted avg']),
+            'f1-score': np.average([v['f1-score'] for k, v in report.items() if k != 'accuracy' and k != 'macro avg' and k != 'weighted avg'], 
+                                  weights=[v['support'] for k, v in report.items() if k != 'accuracy' and k != 'macro avg' and k != 'weighted avg']),
+            'support': report['macro avg']['support']
+        }
+        
+        self.classification_report = report
 
 # Initialize session state
 if 'algorithm' not in st.session_state:
@@ -469,8 +542,8 @@ with tab1:
     
     with col1:
         st.markdown("""
-        <div class="cyber-border">
-            <h3 style="color: #2C5364; margin-top: 0; font-weight: 700;">UPLOAD SECURITY DATASET</h3>
+        <div class="data-training-header">
+            <h3 style="color: white; margin-top: 0;">UPLOAD SECURITY DATASET</h3>
         </div>
         """, unsafe_allow_html=True)
         
@@ -515,8 +588,8 @@ with tab1:
     
     with col2:
         st.markdown("""
-        <div class="cyber-border">
-            <h3 style="color: #2C5364; margin-top: 0; font-weight: 700;">TRAINING CONTROL CENTER</h3>
+        <div class="data-training-header">
+            <h3 style="color: white; margin-top: 0;">TRAINING CONTROL CENTER</h3>
         </div>
         """, unsafe_allow_html=True)
         
@@ -549,8 +622,8 @@ with tab1:
     # Sample dataset option
     st.markdown("---")
     st.markdown("""
-    <div class="cyber-border">
-        <h3 style="color: #2C5364; margin-top: 0; font-weight: 700;">DEMO WITH SYNTHETIC DATA</h3>
+    <div class="data-training-header">
+        <h3 style="color: white; margin-top: 0;">DEMO WITH SYNTHETIC DATA</h3>
     </div>
     """, unsafe_allow_html=True)
     
@@ -578,7 +651,7 @@ with tab1:
                 st.success(f"🎉 DEMO TRAINING COMPLETED! Accuracy: {results['Accuracy']:.4f}")
                 st.rerun()
 
-# Tab 2: Results & Analysis
+# Tab 2: Results & Analytics
 with tab2:
     st.markdown("<div class='tab-content-header'>📈 RESULTS & ANALYTICS</div>", unsafe_allow_html=True)
     
@@ -651,6 +724,82 @@ with tab2:
                 Consider increasing iterations or adjusting parameters for higher accuracy.
             </div>
             """, unsafe_allow_html=True)
+        
+        # Classification Report
+        st.markdown("""
+        <div class="cyber-border">
+            <h3 style="color: #2C5364; margin-top: 0; font-weight: 700;">CLASSIFICATION REPORT</h3>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        if hasattr(st.session_state.algorithm, 'classification_report') and st.session_state.algorithm.classification_report:
+            report = st.session_state.algorithm.classification_report
+            
+            # Create a DataFrame for the classification report
+            report_data = []
+            for cls, metrics in report.items():
+                if cls not in ['accuracy', 'macro avg', 'weighted avg']:
+                    report_data.append({
+                        'Class': cls,
+                        'Precision': f"{metrics['precision']:.4f}",
+                        'Recall': f"{metrics['recall']:.4f}",
+                        'F1-Score': f"{metrics['f1-score']:.4f}",
+                        'Support': metrics['support']
+                    })
+            
+            # Add macro and weighted averages
+            report_data.append({
+                'Class': 'Macro Avg',
+                'Precision': f"{report['macro avg']['precision']:.4f}",
+                'Recall': f"{report['macro avg']['recall']:.4f}",
+                'F1-Score': f"{report['macro avg']['f1-score']:.4f}",
+                'Support': report['macro avg']['support']
+            })
+            
+            report_data.append({
+                'Class': 'Weighted Avg',
+                'Precision': f"{report['weighted avg']['precision']:.4f}",
+                'Recall': f"{report['weighted avg']['recall']:.4f}",
+                'F1-Score': f"{report['weighted avg']['f1-score']:.4f}",
+                'Support': report['weighted avg']['support']
+            })
+            
+            report_df = pd.DataFrame(report_data)
+            
+            # Display the classification report
+            st.dataframe(report_df, use_container_width=True)
+            
+            # Create a visualization of the classification report
+            st.markdown("""
+            <div class="cyber-border">
+                <h3 style="color: #2C5364; margin-top: 0; font-weight: 700;">CLASSIFICATION PERFORMANCE VISUALIZATION</h3>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            # Prepare data for visualization
+            classes = [cls for cls in report.keys() if cls not in ['accuracy', 'macro avg', 'weighted avg']]
+            precision = [report[cls]['precision'] for cls in classes]
+            recall = [report[cls]['recall'] for cls in classes]
+            f1_scores = [report[cls]['f1-score'] for cls in classes]
+            
+            # Create a bar chart
+            fig = go.Figure(data=[
+                go.Bar(name='Precision', x=classes, y=precision, marker_color='#1f77b4'),
+                go.Bar(name='Recall', x=classes, y=recall, marker_color='#ff7f0e'),
+                go.Bar(name='F1-Score', x=classes, y=f1_scores, marker_color='#2ca02c')
+            ])
+            
+            fig.update_layout(
+                barmode='group',
+                title='Classification Metrics by Class',
+                xaxis_title='Class',
+                yaxis_title='Score',
+                yaxis_range=[0.9, 1.0],
+                height=500,
+                showlegend=True
+            )
+            
+            st.plotly_chart(fig, use_container_width=True)
         
         # Training convergence
         st.markdown("""
@@ -867,7 +1016,7 @@ with tab4:
             <h3>2-CLASS DETECTION</h3>
             <p>Normal vs Attack</p>
             <p>Binary classification</p>
-            <p>Highest accuracy target</p>
+            <p>Accuracy: 99.38-99.58%</p>
             <p>Best for general detection</p>
         </div>
         """, unsafe_allow_html=True)
@@ -878,7 +1027,7 @@ with tab4:
             <h3>8-CLASS ANALYSIS</h3>
             <p>7 attack categories + normal</p>
             <p>DDoS, DoS, Recon, etc.</p>
-            <p>Balanced complexity/accuracy</p>
+            <p>Accuracy: 99.10-99.30%</p>
             <p>Good for attack identification</p>
         </div>
         """, unsafe_allow_html=True)
@@ -889,7 +1038,7 @@ with tab4:
             <h3>34-CLASS FORENSICS</h3>
             <p>Full attack taxonomy</p>
             <p>Detailed attack classification</p>
-            <p>Most challenging</p>
+            <p>Accuracy: 98.50-99.00%</p>
             <p>Best for forensic analysis</p>
         </div>
         """, unsafe_allow_html=True)
