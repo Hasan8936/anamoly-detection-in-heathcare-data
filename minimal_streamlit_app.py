@@ -112,6 +112,7 @@ st.markdown("""
         border: 2px solid #90caf9;
         font-weight: 600;
         box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        color: #000000; /* Changed to black text */
     }
     
     .code-block {
@@ -227,12 +228,15 @@ st.markdown("""
     .tab-content-header {
         font-family: 'Orbitron', sans-serif;
         font-weight: 700;
-        color: #0F2027;
+        color: white; /* Changed to white */
         font-size: 2rem;
         margin-bottom: 1.5rem;
         text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
         border-bottom: 3px solid #2C5364;
         padding-bottom: 0.5rem;
+        background: linear-gradient(90deg, #0F2027 0%, #203A43 100%);
+        padding: 1rem;
+        border-radius: 8px;
     }
     
     .data-training-header {
@@ -252,6 +256,10 @@ st.markdown("""
         margin: 1.2rem 0;
         border: 2px solid #90caf9;
         box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    
+    .classification-type-content {
+        color: #000000; /* Changed to black text */
     }
 </style>
 """, unsafe_allow_html=True)
@@ -595,12 +603,14 @@ with tab1:
         
         st.markdown("""
         <div class="feature-box">
-        <strong style="font-size: 1.1rem;">ADVANCED TRAINING FEATURES:</strong><br><br>
+        <strong style="font-size: 1.1rem; color: #000000;">ADVANCED TRAINING FEATURES:</strong><br><br>
+        <span style="color: #000000;">
         • Gazelle Optimization Algorithm<br>
         • Automated feature selection<br>
         • CNN + LightGBM ensemble<br>
         • Multi-layer security intelligence<br>
         • Target: >99% classification accuracy
+        </span>
         </div>
         """, unsafe_allow_html=True)
         
@@ -1014,10 +1024,10 @@ with tab4:
         st.markdown("""
         <div class="metric-card">
             <h3>2-CLASS DETECTION</h3>
-            <p>Normal vs Attack</p>
-            <p>Binary classification</p>
-            <p>Accuracy: 99.38-99.58%</p>
-            <p>Best for general detection</p>
+            <p style="color: #000000;">Normal vs Attack</p>
+            <p style="color: #000000;">Binary classification</p>
+            <p style="color: #000000;">Accuracy: 99.38-99.58%</p>
+            <p style="color: #000000;">Best for general detection</p>
         </div>
         """, unsafe_allow_html=True)
     
@@ -1025,10 +1035,10 @@ with tab4:
         st.markdown("""
         <div class="metric-card">
             <h3>8-CLASS ANALYSIS</h3>
-            <p>7 attack categories + normal</p>
-            <p>DDoS, DoS, Recon, etc.</p>
-            <p>Accuracy: 99.10-99.30%</p>
-            <p>Good for attack identification</p>
+            <p style="color: #000000;">7 attack categories + normal</p>
+            <p style="color: #000000;">DDoS, DoS, Recon, etc.</p>
+            <p style="color: #000000;">Accuracy: 99.10-99.30%</p>
+            <p style="color: #000000;">Good for attack identification</p>
         </div>
         """, unsafe_allow_html=True)
     
@@ -1036,10 +1046,10 @@ with tab4:
         st.markdown("""
         <div class="metric-card">
             <h3>34-CLASS FORENSICS</h3>
-            <p>Full attack taxonomy</p>
-            <p>Detailed attack classification</p>
-            <p>Accuracy: 98.50-99.00%</p>
-            <p>Best for forensic analysis</p>
+            <p style="color: #000000;">Full attack taxonomy</p>
+            <p style="color: #000000;">Detailed attack classification</p>
+            <p style="color: #000000;">Accuracy: 98.50-99.00%</p>
+            <p style="color: #000000;">Best for forensic analysis</p>
         </div>
         """, unsafe_allow_html=True)
     
