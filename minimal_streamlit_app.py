@@ -19,7 +19,7 @@ st.set_page_config(
 # Custom CSS for a professional security dashboard
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Orbitron:wght@400;600;700&display=swap');
     
     * {
         font-family: 'Montserrat', sans-serif;
@@ -88,23 +88,28 @@ st.markdown("""
         font-weight: 600;
     }
     
+    /* Enhanced Demo Mode Warning with better visibility */
     .status-warning {
-        background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
-        color: #856404;
-        padding: 1rem;
-        border-radius: 8px;
-        border: 1px solid #ffeaa7;
-        margin: 1rem 0;
-        font-weight: 600;
+        background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%);
+        color: white;
+        padding: 1.2rem;
+        border-radius: 10px;
+        border: 2px solid #FF5252;
+        margin: 1.5rem 0;
+        font-weight: 700;
+        font-size: 1.1rem;
+        box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+        text-align: center;
     }
     
     .feature-box {
         background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-        padding: 1.2rem;
-        border-radius: 10px;
-        margin: 1rem 0;
-        border: 1px solid #90caf9;
-        font-weight: 500;
+        padding: 1.5rem;
+        border-radius: 12px;
+        margin: 1.2rem 0;
+        border: 2px solid #90caf9;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     }
     
     .code-block {
@@ -117,26 +122,39 @@ st.markdown("""
         margin: 1rem 0;
     }
     
+    /* Enhanced Tab Styling - Classy and Bold */
     .stTabs [data-baseweb="tab-list"] {
-        gap: 8px;
+        gap: 4px;
+        background-color: #0F2027;
+        padding: 8px;
+        border-radius: 12px;
     }
     
     .stTabs [data-baseweb="tab"] {
-        height: 50px;
+        height: 55px;
         white-space: pre-wrap;
-        background-color: #f8f9fa;
-        border-radius: 8px 8px 0 0;
+        background-color: #203A43;
+        border-radius: 8px;
         gap: 8px;
-        padding-top: 12px;
-        padding-bottom: 12px;
-        font-weight: 600;
-        border: 1px solid #e9ecef;
+        padding: 12px 20px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: #8FE3CF;
+        border: 1px solid #2C5364;
+        transition: all 0.3s ease;
+    }
+    
+    .stTabs [data-baseweb="tab"]:hover {
+        background-color: #2C5364;
+        color: white;
     }
     
     .stTabs [aria-selected="true"] {
-        background-color: #2C5364;
+        background: linear-gradient(135deg, #2C5364 0%, #0F2027 100%);
         color: white;
-        border-bottom: 3px solid #8FE3CF;
+        border-bottom: 4px solid #FFD700;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        transform: translateY(-2px);
     }
     
     .sidebar .sidebar-content {
@@ -186,11 +204,11 @@ st.markdown("""
     }
     
     .cyber-border {
-        border: 1px solid #2C5364;
+        border: 2px solid #2C5364;
         border-radius: 12px;
         padding: 1.5rem;
-        margin: 1rem 0;
-        background: rgba(255, 255, 255, 0.9);
+        margin: 1.2rem 0;
+        background: rgba(255, 255, 255, 0.95);
         box-shadow: 0 4px 15px rgba(0,0,0,0.08);
     }
     
@@ -202,6 +220,17 @@ st.markdown("""
         font-weight: 600;
         display: inline-block;
         margin: 0.3rem;
+    }
+    
+    .tab-content-header {
+        font-family: 'Orbitron', sans-serif;
+        font-weight: 700;
+        color: #0F2027;
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+        border-bottom: 3px solid #2C5364;
+        padding-bottom: 0.5rem;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -356,7 +385,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# System status
+# System status - Enhanced with better visibility
 st.markdown("""
 <div class="status-warning">
     <strong>🔧 DEMO MODE ACTIVE</strong> - Simulated results for demonstration purposes. 
@@ -424,7 +453,7 @@ st.sidebar.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# Main content tabs
+# Main content tabs with enhanced styling
 tab1, tab2, tab3, tab4 = st.tabs([
     "📊 DATA & TRAINING", 
     "📈 RESULTS & ANALYTICS", 
@@ -432,16 +461,16 @@ tab1, tab2, tab3, tab4 = st.tabs([
     "📚 DOCUMENTATION"
 ])
 
-# Tab 1: Training & Data
+# Tab 1: Training & Data - Enhanced with bolder styling
 with tab1:
-    st.header("📊 DATASET INGESTION & MODEL TRAINING")
+    st.markdown("<div class='tab-content-header'>📊 DATA & TRAINING</div>", unsafe_allow_html=True)
     
     col1, col2 = st.columns([2, 1])
     
     with col1:
         st.markdown("""
         <div class="cyber-border">
-            <h3 style="color: #2C5364; margin-top: 0;">UPLOAD SECURITY DATASET</h3>
+            <h3 style="color: #2C5364; margin-top: 0; font-weight: 700;">UPLOAD SECURITY DATASET</h3>
         </div>
         """, unsafe_allow_html=True)
         
@@ -487,13 +516,13 @@ with tab1:
     with col2:
         st.markdown("""
         <div class="cyber-border">
-            <h3 style="color: #2C5364; margin-top: 0;">TRAINING CONTROL CENTER</h3>
+            <h3 style="color: #2C5364; margin-top: 0; font-weight: 700;">TRAINING CONTROL CENTER</h3>
         </div>
         """, unsafe_allow_html=True)
         
         st.markdown("""
         <div class="feature-box">
-        <strong>ADVANCED TRAINING FEATURES:</strong><br>
+        <strong style="font-size: 1.1rem;">ADVANCED TRAINING FEATURES:</strong><br><br>
         • Gazelle Optimization Algorithm<br>
         • Automated feature selection<br>
         • CNN + LightGBM ensemble<br>
@@ -521,7 +550,7 @@ with tab1:
     st.markdown("---")
     st.markdown("""
     <div class="cyber-border">
-        <h3 style="color: #2C5364; margin-top: 0;">DEMO WITH SYNTHETIC DATA</h3>
+        <h3 style="color: #2C5364; margin-top: 0; font-weight: 700;">DEMO WITH SYNTHETIC DATA</h3>
     </div>
     """, unsafe_allow_html=True)
     
@@ -551,7 +580,7 @@ with tab1:
 
 # Tab 2: Results & Analysis
 with tab2:
-    st.header("📈 PERFORMANCE ANALYTICS & RESULTS")
+    st.markdown("<div class='tab-content-header'>📈 RESULTS & ANALYTICS</div>", unsafe_allow_html=True)
     
     if st.session_state.model_trained and st.session_state.training_results:
         results = st.session_state.training_results
@@ -559,7 +588,7 @@ with tab2:
         # Performance metrics
         st.markdown("""
         <div class="cyber-border">
-            <h3 style="color: #2C5364; margin-top: 0;">MODEL PERFORMANCE METRICS</h3>
+            <h3 style="color: #2C5364; margin-top: 0; font-weight: 700;">MODEL PERFORMANCE METRICS</h3>
         </div>
         """, unsafe_allow_html=True)
         
@@ -626,7 +655,7 @@ with tab2:
         # Training convergence
         st.markdown("""
         <div class="cyber-border">
-            <h3 style="color: #2C5364; margin-top: 0;">OPTIMIZATION CONVERGENCE</h3>
+            <h3 style="color: #2C5364; margin-top: 0; font-weight: 700;">OPTIMIZATION CONVERGENCE</h3>
         </div>
         """, unsafe_allow_html=True)
         
@@ -654,7 +683,7 @@ with tab2:
         # Feature importance
         st.markdown("""
         <div class="cyber-border">
-            <h3 style="color: #2C5364; margin-top: 0;">FEATURE SELECTION INTELLIGENCE</h3>
+            <h3 style="color: #2C5364; margin-top: 0; font-weight: 700;">FEATURE SELECTION INTELLIGENCE</h3>
         </div>
         """, unsafe_allow_html=True)
         
@@ -686,7 +715,7 @@ with tab2:
 
 # Tab 3: Model Details
 with tab3:
-    st.header("🔍 MODEL INTELLIGENCE & CONFIGURATION")
+    st.markdown("<div class='tab-content-header'>🔍 MODEL INTELLIGENCE</div>", unsafe_allow_html=True)
     
     if st.session_state.model_trained and hasattr(st.session_state.algorithm, 'model_params'):
         params = st.session_state.algorithm.model_params
@@ -694,7 +723,7 @@ with tab3:
         # Model architecture
         st.markdown("""
         <div class="cyber-border">
-            <h3 style="color: #2C5364; margin-top: 0;">OPTIMIZED ARCHITECTURE</h3>
+            <h3 style="color: #2C5364; margin-top: 0; font-weight: 700;">OPTIMIZED ARCHITECTURE</h3>
         </div>
         """, unsafe_allow_html=True)
         
@@ -736,7 +765,7 @@ with tab3:
         # Ensemble configuration
         st.markdown("""
         <div class="cyber-border">
-            <h3 style="color: #2C5364; margin-top: 0;">ENSEMBLE CONFIGURATION</h3>
+            <h3 style="color: #2C5364; margin-top: 0; font-weight: 700;">ENSEMBLE CONFIGURATION</h3>
         </div>
         """, unsafe_allow_html=True)
         
@@ -756,7 +785,7 @@ with tab3:
         # Export model configuration
         st.markdown("""
         <div class="cyber-border">
-            <h3 style="color: #2C5364; margin-top: 0;">EXPORT CONFIGURATION</h3>
+            <h3 style="color: #2C5364; margin-top: 0; font-weight: 700;">EXPORT CONFIGURATION</h3>
         </div>
         """, unsafe_allow_html=True)
         
@@ -806,11 +835,11 @@ with tab3:
 
 # Tab 4: Documentation
 with tab4:
-    st.header("📚 SYSTEM DOCUMENTATION")
+    st.markdown("<div class='tab-content-header'>📚 SYSTEM DOCUMENTATION</div>", unsafe_allow_html=True)
     
     st.markdown("""
     <div class="cyber-border">
-        <h3 style="color: #2C5364; margin-top: 0;">SYSTEM OVERVIEW</h3>
+        <h3 style="color: #2C5364; margin-top: 0; font-weight: 700;">SYSTEM OVERVIEW</h3>
     </div>
     """, unsafe_allow_html=True)
     
@@ -826,7 +855,7 @@ with tab4:
     
     st.markdown("""
     <div class="cyber-border">
-        <h3 style="color: #2C5364; margin-top: 0;">CLASSIFICATION TYPES</h3>
+        <h3 style="color: #2C5364; margin-top: 0; font-weight: 700;">CLASSIFICATION TYPES</h3>
     </div>
     """, unsafe_allow_html=True)
     
