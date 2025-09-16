@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 
 # Configure Streamlit page
 st.set_page_config(
-    page_title="CyberGuard AI - IoT Security Intelligence",
+    page_title="DIRA - IoT Security Intelligence",
     page_icon="🛡️",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -804,7 +804,7 @@ def main():
     # Hero Section
     st.markdown("""
     <div class="hero-section">
-        <div class="hero-title">CyberGuard AI</div>
+        <div class="hero-title">DIRA AI</div>
         <div class="hero-subtitle">Advanced IoT Security Intelligence Platform</div>
         <p>Powered by Gazelle Optimization & Ensemble Machine Learning</p>
     </div>
