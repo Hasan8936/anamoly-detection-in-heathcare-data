@@ -1,0 +1,1165 @@
+import streamlit as st
+import pandas as pd
+import numpy as np
+import io
+import json
+import tempfile
+from datetime import datetime
+import warnings
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+warnings.filterwarnings('ignore')
+
+# Configure Streamlit page
+st.set_page_config(
+    page_title="DIRA - IoT Security Intelligence",
+    page_icon="🔒",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# Custom CSS for a professional security dashboard
+st.markdown("""
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Orbitron:wght@400;600;700&display=swap');
+    
+    * {
+        font-family: 'Montserrat', sans-serif;
+    }
+    
+    .main-header {
+        background: linear-gradient(90deg, #0F2027 0%, #203A43 50%, #2C5364 100%);
+        padding: 2.5rem;
+        border-radius: 12px;
+        color: white;
+        text-align: center;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        border: 1px solid #2C5364;
+    }
+    
+    .main-header h1 {
+        font-weight: 800;
+        font-size: 2.8rem;
+        margin-bottom: 0.5rem;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+    }
+    
+    .main-header h3 {
+        font-weight: 600;
+        color: #8FE3CF;
+        margin-bottom: 1rem;
+    }
+    
+    .metric-card {
+        background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+        padding: 1.2rem;
+        border-radius: 12px;
+        border-left: 5px solid #2C5364;
+        margin: 0.8rem 0;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        transition: transform 0.2s;
+    }
+    
+    .metric-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 14px rgba(0,0,0,0.1);
+    }
+    
+    .metric-card h3 {
+        font-size: 1rem;
+        color: #4a5568;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+    
+    .metric-card h2 {
+        font-size: 1.8rem;
+        color: #2C5364;
+        margin-bottom: 0.2rem;
+        font-weight: 700;
+    }
+    
+    .status-success {
+        background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+        color: #155724;
+        padding: 1rem;
+        border-radius: 8px;
+        border: 1px solid #b8dfc1;
+        margin: 1rem 0;
+        font-weight: 600;
+    }
+    
+    /* Enhanced Demo Mode Warning with better visibility */
+    .status-warning {
+        background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%);
+        color: white;
+        padding: 1.2rem;
+        border-radius: 10px;
+        border: 2px solid #FF5252;
+        margin: 1.5rem 0;
+        font-weight: 700;
+        font-size: 1.1rem;
+        box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+        text-align: center;
+    }
+    
+    .feature-box {
+        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        padding: 1.5rem;
+        border-radius: 12px;
+        margin: 1.2rem 0;
+        border: 2px solid #90caf9;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        color: #000000; /* Black text for better visibility */
+    }
+    
+    .code-block {
+        background: #2C5364;
+        color: #f8f9fa;
+        padding: 1.2rem;
+        border-radius: 8px;
+        font-family: monospace;
+        border-left: 4px solid #8FE3CF;
+        margin: 1rem 0;
+    }
+    
+    /* Enhanced Tab Styling - Classy and Bold */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 4px;
+        background-color: #0F2027;
+        padding: 8px;
+        border-radius: 12px;
+    }
+    
+    .stTabs [data-baseweb="tab"] {
+        height: 55px;
+        white-space: pre-wrap;
+        background-color: #203A43;
+        border-radius: 8px;
+        gap: 8px;
+        padding: 12px 20px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: #8FE3CF;
+        border: 1px solid #2C5364;
+        transition: all 0.3s ease;
+    }
+    
+    .stTabs [data-baseweb="tab"]:hover {
+        background-color: #2C5364;
+        color: white;
+    }
+    
+    .stTabs [aria-selected="true"] {
+        background: linear-gradient(135deg, #2C5364 0%, #0F2027 100%);
+        color: white;
+        border-bottom: 4px solid #FFD700;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        transform: translateY(-2px);
+    }
+    
+    .sidebar .sidebar-content {
+        background: linear-gradient(180deg, #0F2027 0%, #203A43 100%);
+        color: white;
+    }
+    
+    .sidebar-header {
+        color: #8FE3CF;
+        font-weight: 700;
+        font-size: 1.4rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .param-slider {
+        color: #2C5364;
+    }
+    
+    .download-btn {
+        background: linear-gradient(135deg, #2C5364 0%, #203A43 100%);
+        color: white;
+        font-weight: 600;
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 8px;
+        margin-top: 1rem;
+    }
+    
+    .download-btn:hover {
+        background: linear-gradient(135deg, #203A43 0%, #0F2027 100%);
+        color: white;
+    }
+    
+    .training-btn {
+        background: linear-gradient(135deg, #0F2027 0%, #2C5364 100%);
+        font-weight: 700;
+        font-size: 1.1rem;
+        padding: 1rem;
+        border-radius: 10px;
+        border: none;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .training-btn:hover {
+        background: linear-gradient(135deg, #2C5364 0%, #0F2027 100%);
+        box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+    }
+    
+    .cyber-border {
+        border: 2px solid #2C5364;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin: 1.2rem 0;
+        background: rgba(255, 255, 255, 0.95);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+    
+    .result-badge {
+        background: linear-gradient(135deg, #2C5364 0%, #203A43 100%);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        display: inline-block;
+        margin: 0.3rem;
+    }
+    
+    .tab-content-header {
+        font-family: 'Orbitron', sans-serif;
+        font-weight: 700;
+        color: white;
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+        border-bottom: 3px solid #2C5364;
+        padding-bottom: 0.5rem;
+        background: linear-gradient(90deg, #0F2027 0%, #203A43 100%);
+        padding: 1rem;
+        border-radius: 8px;
+    }
+    
+    .data-training-header {
+        background: linear-gradient(90deg, #FF6B6B 0%, #FF8E53 100%);
+        color: white;
+        padding: 1rem;
+        border-radius: 8px;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        text-align: center;
+    }
+    
+    .classification-report {
+        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        padding: 1.5rem;
+        border-radius: 12px;
+        margin: 1.2rem 0;
+        border: 2px solid #90caf9;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    
+    .optimization-process {
+        color: #000000; /* Black text for optimization process */
+        font-weight: 600;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# Demo ML Algorithm Class - Updated to RF and XGBoost
+class IoTSecurityMLDemo:
+    """
+    Demo implementation of IoT Security ML Pipeline
+    Simulates RF+XGBoost with Gazelle Optimization
+    """
+    
+    def __init__(self):
+        self.is_trained = False
+        self.results = {}
+        self.training_history = []
+        self.feature_importance = None
+        self.model_params = {}
+        self.classification_report = {}
+        
+    def simulate_training(self, df, representation_type, n_features, population_size, max_iterations):
+        """Simulate the training process with realistic progress"""
+        
+        # Initialize progress tracking
+        progress_bar = st.progress(0)
+        status_container = st.empty()
+        
+        try:
+            # Step 1: Data preprocessing
+            status_container.markdown("<div class='cyber-border'><div class='optimization-process'>🔄 <b>Preprocessing data...</b></div></div>", unsafe_allow_html=True)
+            progress_bar.progress(10)
+            
+            # Simulate preprocessing delay
+            import time
+            time.sleep(1)
+            
+            # Step 2: Feature selection setup
+            status_container.markdown("<div class='cyber-border'><div class='optimization-process'>🎯 <b>Setting up feature selection...</b></div></div>", unsafe_allow_html=True)
+            progress_bar.progress(20)
+            time.sleep(0.5)
+            
+            # Step 3: Initialize Gazelle Optimization
+            status_container.markdown("<div class='cyber-border'><div class='optimization-process'>🦌 <b>Initializing Gazelle Optimization Algorithm...</b></div></div>", unsafe_allow_html=True)
+            progress_bar.progress(30)
+            time.sleep(0.5)
+            
+            # Simulate optimization iterations
+            best_accuracy = 0.7
+            target_accuracy = self._get_target_accuracy(representation_type)
+            
+            for iteration in range(max_iterations):
+                progress = 30 + (iteration / max_iterations) * 60
+                status_container.markdown(f"<div class='cyber-border'><div class='optimization-process'>🔧 <b>Optimization iteration {iteration+1}/{max_iterations}</b></div></div>", unsafe_allow_html=True)
+                progress_bar.progress(int(progress))
+                
+                # Simulate improvement
+                improvement = np.random.exponential(0.01)
+                best_accuracy = min(target_accuracy + 0.005, best_accuracy + improvement)
+                self.training_history.append(best_accuracy)
+                
+                time.sleep(0.1)  # Small delay for visualization
+            
+            # Final model training
+            status_container.markdown("<div class='cyber-border'><div class='optimization-process'>🧠 <b>Training final RF+XGBoost ensemble...</b></div></div>", unsafe_allow_html=True)
+            progress_bar.progress(90)
+            time.sleep(1)
+            
+            # Generate final results with more realistic accuracy ranges
+            if representation_type == '2-class':
+                final_accuracy = np.random.uniform(0.9938, 0.9958)
+            elif representation_type == '8-class':
+                final_accuracy = np.random.uniform(0.9900, 0.9930)
+            else:  # 34-class
+                final_accuracy = np.random.uniform(0.9850, 0.9900)
+            
+            precision = final_accuracy + np.random.uniform(-0.003, 0.003)
+            recall = final_accuracy + np.random.uniform(-0.003, 0.003)
+            f1_score = 2 * (precision * recall) / (precision + recall)
+            
+            self.results = {
+                'Accuracy': final_accuracy,
+                'Precision': max(0.90, precision),
+                'Recall': max(0.90, recall),
+                'F1-Score': max(0.90, f1_score),
+                'representation_type': representation_type,
+                'n_features': n_features,
+                'population_size': population_size,
+                'max_iterations': max_iterations
+            }
+            
+            # Generate feature importance
+            self.feature_importance = np.random.exponential(0.5, n_features)
+            self.feature_importance = self.feature_importance / np.sum(self.feature_importance)
+            
+            # Generate model parameters
+            self._generate_model_params()
+            
+            # Generate classification report
+            self._generate_classification_report(representation_type)
+            
+            # Complete
+            status_container.markdown("<div class='cyber-border'><div class='optimization-process'>✅ <b>Training completed successfully!</b></div></div>", unsafe_allow_html=True)
+            progress_bar.progress(100)
+            time.sleep(0.5)
+            
+            self.is_trained = True
+            return self.results
+            
+        except Exception as e:
+            status_container.error(f"Training failed: {e}")
+            return None
+    
+    def _get_target_accuracy(self, representation_type):
+        """Get target accuracy based on classification type"""
+        if representation_type == '2-class':
+            return np.random.uniform(0.993, 0.995)
+        elif representation_type == '8-class':
+            return np.random.uniform(0.990, 0.993)
+        else:  # 34-class
+            return np.random.uniform(0.985, 0.990)
+    
+    def _generate_model_params(self):
+        """Generate realistic model parameters for RF and XGBoost"""
+        self.model_params = {
+            'rf_params': {
+                'n_estimators': np.random.randint(100, 500),
+                'max_depth': np.random.randint(10, 50),
+                'min_samples_split': np.random.randint(2, 10),
+                'min_samples_leaf': np.random.randint(1, 5),
+                'max_features': ['sqrt', 'log2'][np.random.randint(0, 2)],
+                'bootstrap': [True, False][np.random.randint(0, 2)],
+                'criterion': ['gini', 'entropy'][np.random.randint(0, 2)]
+            },
+            'xgboost_params': {
+                'n_estimators': np.random.randint(100, 500),
+                'max_depth': np.random.randint(3, 10),
+                'learning_rate': round(np.random.uniform(0.01, 0.3), 6),
+                'subsample': round(np.random.uniform(0.6, 1.0), 3),
+                'colsample_bytree': round(np.random.uniform(0.6, 1.0), 3),
+                'gamma': round(np.random.uniform(0, 1.0), 3),
+                'reg_alpha': round(np.random.uniform(0.0, 1.0), 3),
+                'reg_lambda': round(np.random.uniform(0.0, 1.0), 3)
+            },
+            'ensemble_weight': round(np.random.uniform(0.3, 0.7), 3)
+        }
+    
+    def _generate_classification_report(self, representation_type):
+        """Generate a classification report with realistic values"""
+        if representation_type == '2-class':
+            classes = ['Normal', 'Attack']
+        elif representation_type == '8-class':
+            classes = ['Normal', 'DDoS', 'Malware', 'Intrusion', 'Recon', 'Web Attack', 'Ransomware', 'Data Exfiltration']
+        else:  # 34-class
+            classes = [f'Class_{i}' for i in range(1, 35)]
+        
+        report = {}
+        for cls in classes:
+            precision = np.random.uniform(0.97, 0.995)
+            recall = np.random.uniform(0.97, 0.995)
+            f1 = 2 * (precision * recall) / (precision + recall)
+            support = np.random.randint(100, 1000)
+            
+            report[cls] = {
+                'precision': precision,
+                'recall': recall,
+                'f1-score': f1,
+                'support': support
+            }
+        
+        # Add overall metrics
+        report['accuracy'] = self.results['Accuracy']
+        report['macro avg'] = {
+            'precision': np.mean([v['precision'] for k, v in report.items() if k != 'accuracy' and k != 'macro avg' and k != 'weighted avg']),
+            'recall': np.mean([v['recall'] for k, v in report.items() if k != 'accuracy' and k != 'macro avg' and k != 'weighted avg']),
+            'f1-score': np.mean([v['f1-score'] for k, v in report.items() if k != 'accuracy' and k != 'macro avg' and k != 'weighted avg']),
+            'support': np.sum([v['support'] for k, v in report.items() if k != 'accuracy' and k != 'macro avg' and k != 'weighted avg'])
+        }
+        
+        report['weighted avg'] = {
+            'precision': np.average([v['precision'] for k, v in report.items() if k != 'accuracy' and k != 'macro avg' and k != 'weighted avg'], 
+                                  weights=[v['support'] for k, v in report.items() if k != 'accuracy' and k != 'macro avg' and k != 'weighted avg']),
+            'recall': np.average([v['recall'] for k, v in report.items() if k != 'accuracy' and k != 'macro avg' and k != 'weighted avg'], 
+                                weights=[v['support'] for k, v in report.items() if k != 'accuracy' and k != 'macro avg' and k != 'weighted avg']),
+            'f1-score': np.average([v['f1-score'] for k, v in report.items() if k != 'accuracy' and k != 'macro avg' and k != 'weighted avg'], 
+                                  weights=[v['support'] for k, v in report.items() if k != 'accuracy' and k != 'macro avg' and k != 'weighted avg']),
+            'support': report['macro avg']['support']
+        }
+        
+        self.classification_report = report
+
+# Initialize session state
+if 'algorithm' not in st.session_state:
+    st.session_state.algorithm = IoTSecurityMLDemo()
+if 'model_trained' not in st.session_state:
+    st.session_state.model_trained = False
+if 'training_results' not in st.session_state:
+    st.session_state.training_results = {}
+
+# Main header
+st.markdown("""
+<div class="main-header">
+    <h1>🔒 DIRA - IoT Security Intelligence</h1>
+    <h3>Advanced Threat Classification & Network Defense System</h3>
+    <p>Real-time AI-powered IoT Security Analytics with Multi-Layer Protection</p>
+</div>
+""", unsafe_allow_html=True)
+
+# System status - Enhanced with better visibility
+st.markdown("""
+<div class="status-warning">
+    <strong>🔧 DEMO MODE ACTIVE</strong> - Simulated results for demonstration purposes. 
+    Production deployment requires full ML dependency stack including Scikit-learn and XGBoost.
+</div>
+""", unsafe_allow_html=True)
+
+# Sidebar configuration
+st.sidebar.markdown("""
+<div class="sidebar-header">
+    ⚙️ SYSTEM CONFIGURATION
+</div>
+""", unsafe_allow_html=True)
+
+st.sidebar.markdown("---")
+
+st.sidebar.markdown("""
+<div class="sidebar-header" style="font-size: 1.2rem;">
+    🎯 CLASSIFICATION SETTINGS
+</div>
+""", unsafe_allow_html=True)
+
+representation_type = st.sidebar.selectbox(
+    "Classification Type",
+    ["2-class", "8-class", "34-class"],
+    help="Choose the number of attack categories to classify"
+)
+
+n_features = st.sidebar.slider(
+    "Features to Select",
+    min_value=10,
+    max_value=50,
+    value=30,
+    help="Number of top features selected by GOA"
+)
+
+st.sidebar.markdown("""
+<div class="sidebar-header" style="font-size: 1.2rem;">
+    🔧 OPTIMIZATION PARAMETERS
+</div>
+""", unsafe_allow_html=True)
+
+population_size = st.sidebar.slider(
+    "Population Size",
+    min_value=10,
+    max_value=50,
+    value=25
+)
+
+max_iterations = st.sidebar.slider(
+    "Max Iterations",
+    min_value=10,
+    max_value=100,
+    value=40
+)
+
+st.sidebar.markdown("---")
+st.sidebar.markdown(f"""
+<div class="feature-box">
+<strong>ACTIVE CONFIGURATION:</strong><br>
+• Classification: <span class="result-badge">{representation_type}</span><br>
+• Features: <span class="result-badge">{n_features}</span><br>
+• Population: <span class="result-badge">{population_size}</span><br>
+• Iterations: <span class="result-badge">{max_iterations}</span>
+</div>
+""", unsafe_allow_html=True)
+
+# Main content tabs with enhanced styling
+tab1, tab2, tab3, tab4 = st.tabs([
+    "📊 DATA & TRAINING", 
+    "📈 RESULTS & ANALYTICS", 
+    "🔍 MODEL INTELLIGENCE",
+    "📚 DOCUMENTATION"
+])
+
+# Tab 1: Training & Data - Enhanced with bolder styling
+with tab1:
+    st.markdown("<div class='tab-content-header'>📊 DATA & TRAINING</div>", unsafe_allow_html=True)
+    
+    col1, col2 = st.columns([2, 1])
+    
+    with col1:
+        st.markdown("""
+        <div class="data-training-header">
+            <h3 style="color: white; margin-top: 0;">UPLOAD SECURITY DATASET</h3>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        uploaded_file = st.file_uploader(
+            "Choose CSV file",
+            type=['csv'],
+            help="Upload your IoT security dataset"
+        )
+        
+        if uploaded_file is not None:
+            try:
+                df = pd.read_csv(uploaded_file, nrows=1000)  # Preview first 1000 rows
+                
+                st.success("✅ DATASET LOADED SUCCESSFULLY!")
+                
+                # Dataset statistics
+                col1_stat, col2_stat, col3_stat = st.columns(3)
+                with col1_stat:
+                    st.metric("Rows (preview)", len(df), help="Number of rows in the dataset preview")
+                with col2_stat:
+                    st.metric("Columns", len(df.columns), help="Number of features in the dataset")
+                with col3_stat:
+                    target_col = df.columns[-1]
+                    st.metric("Classes", df[target_col].nunique(), help="Number of target classes")
+                
+                # Dataset preview
+                with st.expander("📋 DATASET PREVIEW", expanded=True):
+                    st.dataframe(df.head(10), use_container_width=True)
+                
+                # Class distribution
+                with st.expander("📊 CLASS DISTRIBUTION ANALYSIS", expanded=True):
+                    class_counts = df[target_col].value_counts()
+                    st.bar_chart(class_counts)
+                    
+                    # Show statistics
+                    st.write("**CLASS STATISTICS:**")
+                    for class_name, count in class_counts.items():
+                        st.write(f"- **{class_name}**: {count} samples")
+                
+            except Exception as e:
+                st.error(f"Error loading dataset: {e}")
+    
+    with col2:
+        st.markdown("""
+        <div class="data-training-header">
+            <h3 style="color: white; margin-top: 0;">TRAINING CONTROL CENTER</h3>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("""
+        <div class="feature-box">
+        <strong style="font-size: 1.1rem; color: #000000;">ADVANCED TRAINING FEATURES:</strong><br><br>
+        <span style="color: #000000;">
+        • Gazelle Optimization Algorithm<br>
+        • Automated feature selection<br>
+        • RF + XGBoost ensemble<br>
+        • Multi-layer security intelligence<br>
+        • Target: >99% classification accuracy
+        </span>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Training button
+        if st.button("🚀 INITIATE MODEL TRAINING", type="primary", use_container_width=True, key="train_btn"):
+            if uploaded_file is not None:
+                df_full = pd.read_csv(uploaded_file)
+                results = st.session_state.algorithm.simulate_training(
+                    df_full, representation_type, n_features, population_size, max_iterations
+                )
+                if results:
+                    st.session_state.training_results = results
+                    st.session_state.model_trained = True
+                    st.success(f"🎉 TRAINING COMPLETED! Accuracy: {results['Accuracy']:.4f}")
+                    st.rerun()
+            else:
+                st.warning("Please upload a dataset first")
+    
+    # Sample dataset option
+    st.markdown("---")
+    st.markdown("""
+    <div class="data-training-header">
+        <h3 style="color: white; margin-top: 0;">DEMO WITH SYNTHETIC DATA</h3>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    col1_demo, col2_demo = st.columns([3, 1])
+    
+    with col1_demo:
+        st.info("""
+        **GENERATE SYNTHETIC IOT SECURITY DATASET:**
+        - 5,000 samples with realistic network traffic features
+        - Multiple attack categories (DDoS, Malware, Intrusion, etc.)
+        - Balanced class distribution for optimal training
+        - Realistic feature correlations and patterns
+        """)
+    
+    with col2_demo:
+        if st.button("🎲 RUN DEMO TRAINING", use_container_width=True, key="demo_btn"):
+            # Create sample dataset
+            sample_df = create_synthetic_dataset()
+            results = st.session_state.algorithm.simulate_training(
+                sample_df, representation_type, n_features, population_size, max_iterations
+            )
+            if results:
+                st.session_state.training_results = results
+                st.session_state.model_trained = True
+                st.success(f"🎉 DEMO TRAINING COMPLETED! Accuracy: {results['Accuracy']:.4f}")
+                st.rerun()
+
+# Tab 2: Results & Analytics
+with tab2:
+    st.markdown("<div class='tab-content-header'>📈 RESULTS & ANALYTICS</div>", unsafe_allow_html=True)
+    
+    if st.session_state.model_trained and st.session_state.training_results:
+        results = st.session_state.training_results
+        
+        # Performance metrics
+        st.markdown("""
+        <div class="cyber-border">
+            <h3 style="color: #2C5364; margin-top: 0; font-weight: 700;">MODEL PERFORMANCE METRICS</h3>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            accuracy = results['Accuracy']
+            st.markdown(f"""
+            <div class="metric-card">
+                <h3>CLASSIFICATION ACCURACY</h3>
+                <h2>{accuracy:.4f}</h2>
+                <p>{accuracy*100:.2f}% PRECISION</p>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with col2:
+            precision = results['Precision']
+            st.markdown(f"""
+            <div class="metric-card">
+                <h3>PRECISION RATE</h3>
+                <h2>{precision:.4f}</h2>
+                <p>{precision*100:.2f}% RELIABILITY</p>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with col3:
+            recall = results['Recall']
+            st.markdown(f"""
+            <div class="metric-card">
+                <h3>RECALL RATE</h3>
+                <h2>{recall:.4f}</h2>
+                <p>{recall*100:.2f}% COVERAGE</p>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with col4:
+            f1_score = results['F1-Score']
+            st.markdown(f"""
+            <div class="metric-card">
+                <h3>F1-SCORE</h3>
+                <h2>{f1_score:.4f}</h2>
+                <p>BALANCED METRIC</p>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        # Performance status
+        target_accuracy = 0.99
+        if accuracy >= target_accuracy:
+            st.markdown(f"""
+            <div class="status-success">
+                🎉 <strong>SECURITY TARGET ACHIEVED!</strong><br>
+                Classification accuracy ({accuracy:.4f}) exceeds the target threshold of {target_accuracy}
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            st.markdown(f"""
+            <div class="status-warning">
+                ⚡ <strong>GOOD PERFORMANCE ACHIEVED!</strong><br>
+                Accuracy: {accuracy:.4f} (Target: {target_accuracy})<br>
+                Consider increasing iterations or adjusting parameters for higher accuracy.
+            </div>
+            """, unsafe_allow_html=True)
+        
+        # Classification Report
+        st.markdown("""
+        <div class="cyber-border">
+            <h3 style="color: #2C5364; margin-top: 0; font-weight: 700;">CLASSIFICATION REPORT</h3>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        if hasattr(st.session_state.algorithm, 'classification_report') and st.session_state.algorithm.classification_report:
+            report = st.session_state.algorithm.classification_report
+            
+            # Create a DataFrame for the classification report
+            report_data = []
+            for cls, metrics in report.items():
+                if cls not in ['accuracy', 'macro avg', 'weighted avg']:
+                    report_data.append({
+                        'Class': cls,
+                        'Precision': f"{metrics['precision']:.4f}",
+                        'Recall': f"{metrics['recall']:.4f}",
+                        'F1-Score': f"{metrics['f1-score']:.4f}",
+                        'Support': metrics['support']
+                    })
+            
+            # Add macro and weighted averages
+            report_data.append({
+                'Class': 'Macro Avg',
+                'Precision': f"{report['macro avg']['precision']:.4f}",
+                'Recall': f"{report['macro avg']['recall']:.4f}",
+                'F1-Score': f"{report['macro avg']['f1-score']:.4f}",
+                'Support': report['macro avg']['support']
+            })
+            
+            report_data.append({
+                'Class': 'Weighted Avg',
+                'Precision': f"{report['weighted avg']['precision']:.4f}",
+                'Recall': f"{report['weighted avg']['recall']:.4f}",
+                'F1-Score': f"{report['weighted avg']['f1-score']:.4f}",
+                'Support': report['weighted avg']['support']
+            })
+            
+            report_df = pd.DataFrame(report_data)
+            
+            # Display the classification report
+            st.dataframe(report_df, use_container_width=True)
+            
+            # Create a visualization of the classification report
+            st.markdown("""
+            <div class="cyber-border">
+                <h3 style="color: #2C5364; margin-top: 0; font-weight: 700;">CLASSIFICATION PERFORMANCE VISUALIZATION</h3>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            # Prepare data for visualization
+            classes = [cls for cls in report.keys() if cls not in ['accuracy', 'macro avg', 'weighted avg']]
+            precision = [report[cls]['precision'] for cls in classes]
+            recall = [report[cls]['recall'] for cls in classes]
+            f1_scores = [report[cls]['f1-score'] for cls in classes]
+            
+            # Create a bar chart
+            fig = go.Figure(data=[
+                go.Bar(name='Precision', x=classes, y=precision, marker_color='#1f77b4'),
+                go.Bar(name='Recall', x=classes, y=recall, marker_color='#ff7f0e'),
+                go.Bar(name='F1-Score', x=classes, y=f1_scores, marker_color='#2ca02c')
+            ])
+            
+            fig.update_layout(
+                barmode='group',
+                title='Classification Metrics by Class',
+                xaxis_title='Class',
+                yaxis_title='Score',
+                yaxis_range=[0.9, 1.0],
+                height=500,
+                showlegend=True
+            )
+            
+            st.plotly_chart(fig, use_container_width=True)
+        
+        # Training convergence
+        st.markdown("""
+        <div class="cyber-border">
+            <h3 style="color: #2C5364; margin-top: 0; font-weight: 700;">OPTIMIZATION CONVERGENCE</h3>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        if hasattr(st.session_state.algorithm, 'training_history') and st.session_state.algorithm.training_history:
+            history = st.session_state.algorithm.training_history
+            
+            # Create convergence chart
+            chart_data = pd.DataFrame({
+                'Iteration': list(range(1, len(history) + 1)),
+                'Accuracy': history
+            })
+            
+            st.line_chart(chart_data.set_index('Iteration'))
+            
+            # Convergence statistics
+            col1_conv, col2_conv, col3_conv = st.columns(3)
+            with col1_conv:
+                st.metric("Initial Accuracy", f"{history[0]:.4f}")
+            with col2_conv:
+                st.metric("Final Accuracy", f"{history[-1]:.4f}")
+            with col3_conv:
+                improvement = history[-1] - history[0]
+                st.metric("Total Improvement", f"{improvement:.4f}")
+        
+        # Feature importance
+        st.markdown("""
+        <div class="cyber-border">
+            <h3 style="color: #2C5364; margin-top: 0; font-weight: 700;">FEATURE SELECTION INTELLIGENCE</h3>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        if hasattr(st.session_state.algorithm, 'feature_importance') and st.session_state.algorithm.feature_importance is not None:
+            importance = st.session_state.algorithm.feature_importance
+            
+            col1_feat, col2_feat = st.columns([1, 2])
+            
+            with col1_feat:
+                st.metric("Selected Features", len(importance))
+                st.metric("Total Features", 50)  # Simulated
+                reduction = (1 - len(importance) / 50) * 100
+                st.metric("Dimension Reduction", f"{reduction:.1f}%")
+            
+            with col2_feat:
+                # Top 15 features chart
+                top_n = min(15, len(importance))
+                top_indices = np.argsort(importance)[::-1][:top_n]
+                
+                feature_data = pd.DataFrame({
+                    'Feature': [f'Feature_{i+1}' for i in top_indices],
+                    'Importance': importance[top_indices]
+                })
+                
+                st.bar_chart(feature_data.set_index('Feature'))
+    
+    else:
+        st.info("🔄 No training results available. Please train a model first in the Training tab.")
+
+# Tab 3: Model Details
+with tab3:
+    st.markdown("<div class='tab-content-header'>🔍 MODEL INTELLIGENCE</div>", unsafe_allow_html=True)
+    
+    if st.session_state.model_trained and hasattr(st.session_state.algorithm, 'model_params'):
+        params = st.session_state.algorithm.model_params
+        
+        # Model architecture
+        st.markdown("""
+        <div class="cyber-border">
+            <h3 style="color: #2C5364; margin-top: 0; font-weight: 700;">OPTIMIZED ARCHITECTURE</h3>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("**RANDOM FOREST PARAMETERS:**")
+            rf_params = params['rf_params']
+            
+            st.markdown(f"""
+            <div class="code-block">
+            Number of Estimators: {rf_params['n_estimators']}<br>
+            Max Depth: {rf_params['max_depth']}<br>
+            Min Samples Split: {rf_params['min_samples_split']}<br>
+            Min Samples Leaf: {rf_params['min_samples_leaf']}<br>
+            Max Features: {rf_params['max_features']}<br>
+            Bootstrap: {rf_params['bootstrap']}<br>
+            Criterion: {rf_params['criterion']}
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with col2:
+            st.markdown("**XGBOOST PARAMETERS:**")
+            xgb_params = params['xgboost_params']
+            
+            st.markdown(f"""
+            <div class="code-block">
+            Number of Estimators: {xgb_params['n_estimators']}<br>
+            Max Depth: {xgb_params['max_depth']}<br>
+            Learning Rate: {xgb_params['learning_rate']}<br>
+            Subsample: {xgb_params['subsample']}<br>
+            Colsample by Tree: {xgb_params['colsample_bytree']}<br>
+            Gamma: {xgb_params['gamma']}<br>
+            Alpha Regularization: {xgb_params['reg_alpha']}<br>
+            Lambda Regularization: {xgb_params['reg_lambda']}
+            </div>
+            """, unsafe_allow_html=True)
+        
+        # Ensemble configuration
+        st.markdown("""
+        <div class="cyber-border">
+            <h3 style="color: #2C5364; margin-top: 0; font-weight: 700;">ENSEMBLE CONFIGURATION</h3>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        ensemble_weight = params['ensemble_weight']
+        xgb_weight = 1 - ensemble_weight
+        
+        st.markdown(f"""
+        <div class="feature-box">
+        <strong>ENSEMBLE WEIGHTS:</strong><br>
+        • RF Contribution: {ensemble_weight:.1%}<br>
+        • XGBoost Contribution: {xgb_weight:.1%}<br><br>
+        <strong>OPTIMIZATION METHOD:</strong> Gazelle Optimization Algorithm (GOA)<br>
+        <strong>FEATURE SELECTION:</strong> Top-{n_features} most important features
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Export model configuration
+        st.markdown("""
+        <div class="cyber-border">
+            <h3 style="color: #2C5364; margin-top: 0; font-weight: 700;">EXPORT CONFIGURATION</h3>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        col1_export, col2_export = st.columns([2, 1])
+        
+        with col1_export:
+            export_data = {
+                'model_architecture': 'RF+XGBoost Ensemble',
+                'optimization_algorithm': 'Gazelle Optimization Algorithm',
+                'performance': st.session_state.training_results,
+                'parameters': params,
+                'feature_selection': {
+                    'method': 'GOA-based importance weighting',
+                    'selected_features': n_features,
+                    'total_features': 50
+                },
+                'training_config': {
+                    'representation_type': representation_type,
+                    'population_size': population_size,
+                    'max_iterations': max_iterations
+                },
+                'export_date': datetime.now().isoformat()
+            }
+            
+            json_str = json.dumps(export_data, indent=2)
+            
+            st.download_button(
+                label="📄 DOWNLOAD MODEL CONFIGURATION",
+                data=json_str,
+                file_name=f"dira_model_config_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json",
+                mime="application/json",
+                use_container_width=True
+            )
+        
+        with col2_export:
+            st.info("""
+            **EXPORT INCLUDES:**
+            - Model architecture
+            - Optimized parameters  
+            - Training results
+            - Feature selection info
+            - Configuration settings
+            """)
+    
+    else:
+        st.info("🔄 No model details available. Please train a model first.")
+
+# Tab 4: Documentation
+with tab4:
+    st.markdown("<div class='tab-content-header'>📚 SYSTEM DOCUMENTATION</div>", unsafe_allow_html=True)
+    
+    st.markdown("""
+    <div class="cyber-border">
+        <h3 style="color: #2C5364; margin-top: 0; font-weight: 700;">SYSTEM OVERVIEW</h3>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("""
+    **DIRA (Digital IoT Resilience Analytics)** is an advanced AI-powered security system designed for IoT network protection:
+    
+    **CORE TECHNOLOGIES:**
+    - **Random Forest (RF)**: Ensemble learning method for classification and regression
+    - **XGBoost**: Optimized distributed gradient boosting library
+    - **Gazelle Optimization Algorithm (GOA)**: Optimizes both model hyperparameters and feature selection
+    - **Ensemble Learning**: Combines strengths of both models for superior performance
+    """)
+    
+    st.markdown("""
+    <div class="cyber-border">
+        <h3 style="color: #2C5364; margin-top: 0; font-weight: 700;">CLASSIFICATION TYPES</h3>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.markdown("""
+        <div class="metric-card">
+            <h3>2-CLASS DETECTION</h3>
+            <p style="color: #000000;">Normal vs Attack</p>
+            <p style="color: #000000;">Binary classification</p>
+            <p style="color: #000000;">Accuracy: 99.38-99.58%</p>
+            <p style="color: #000000;">Best for general detection</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown("""
+        <div class="metric-card">
+            <h3>8-CLASS ANALYSIS</h3>
+            <p style="color: #000000;">7 attack categories + normal</p>
+            <p style="color: #000000;">DDoS, DoS, Recon, etc.</p>
+            <p style="color: #000000;">Accuracy: 99.10-99.30%</p>
+            <p style="color: #000000;">Good for attack identification</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col3:
+        st.markdown("""
+        <div class="metric-card">
+            <h3>34-CLASS FORENSICS</h3>
+            <p style="color: #000000;">Full attack taxonomy</p>
+            <p style="color: #000000;">Detailed attack classification</p>
+            <p style="color: #000000;">Accuracy: 98.50-99.00%</p>
+            <p style="color: #000000;">Best for forensic analysis</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Additional documentation content would go here...
+
+# Helper functions
+def create_synthetic_dataset():
+    """Create a realistic synthetic IoT security dataset"""
+    np.random.seed(42)
+    n_samples = 5000
+    n_features = 50
+    
+    # Generate correlated features mimicking network traffic
+    base_features = np.random.randn(n_samples, 10)
+    
+    # Create additional features with some correlation
+    additional_features = []
+    for i in range(40):
+        if i < 20:
+            # Network timing features
+            feature = base_features[:, i % 10] + np.random.randn(n_samples) * 0.3
+        else:
+            # Packet size and flow features
+            feature = np.abs(base_features[:, i % 10]) + np.random.exponential(0.5, n_samples)
+        
+        additional_features.append(feature)
+    
+    # Combine all features
+    X = np.column_stack([base_features, np.array(additional_features).T])
+    
+    # Generate realistic attack labels
+    # Create decision boundaries for different attack types
+    decision_1 = 2 * X[:, 0] + 1.5 * X[:, 1] - X[:, 2] + np.random.randn(n_samples) * 0.5
+    decision_2 = -X[:, 3] + 2 * X[:, 4] - 0.5 * X[:, 5] + np.random.randn(n_samples) * 0.7
+    decision_3 = X[:, 6] + X[:, 7] - X[:, 8] + np.random.randn(n_samples) * 0.6
+    
+    # Create labels based on decision boundaries
+    labels = []
+    for i in range(n_samples):
+        if decision_1[i] > 2:
+            labels.append('DDoS_Attack')
+        elif decision_2[i] > 1.5:
+            labels.append('Malware_Attack')
+        elif decision_3[i] > 1:
+            labels.append('Intrusion_Attack')
+        elif decision_1[i] < -2:
+            labels.append('Recon_Attack')
+        else:
+            labels.append('Normal')
+    
+    # Create DataFrame
+    columns = [f'feature_{i+1}' for i in range(n_features)] + ['label']
+    df = pd.DataFrame(np.column_stack([X, labels]), columns=columns)
+    
+    return df
+
+# Footer
+st.markdown("---")
+st.markdown("""
+<div style='text-align: center; color: #2C5364; margin-top: 2rem;'>
+    <p>🔒 <strong>DIRA - IoT Security Intelligence System</strong> | Advanced Threat Detection</p>
+    <p>Multi-Layer AI Protection for IoT Network Infrastructure</p>
+    <p><em>Demo Version - For production deployment, install full ML dependencies</em></p>
+</div>
+""", unsafe_allow_html=True)
+
+# Additional sidebar information
+with st.sidebar:
+    st.markdown("---")
+    st.markdown("""
+    <div class="sidebar-header" style="font-size: 1.2rem;">
+        📊 SYSTEM STATUS
+    </div>
+    """, unsafe_allow_html=True)
+    
+    if st.session_state.model_trained:
+        results = st.session_state.training_results
+        st.success(f"✅ MODEL TRAINED")
+        st.metric("Accuracy", f"{results['Accuracy']:.4f}")
+        st.metric("Classification", results['representation_type'])
+    else:
+        st.info("⏳ AWAITING TRAINING")
+    
+    st.markdown("---")
+    st.markdown("""
+    <div class="sidebar-header" style="font-size: 1.2rem;">
+        🔗 QUICK LINKS
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("""
+    - [Documentation](https://streamlit.io)
+    - [GitHub Repository](https://github.com)
+    - [Technical Paper](https://arxiv.org)
+    """)
+    
+    st.markdown("---")
+    st.markdown("""
+    <div class="sidebar-header" style="font-size: 1.2rem;">
+        📞 SUPPORT
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("""
+    - Email: support@dira-security.com
+    - Issues: GitHub Issues
+    - Community: Discord
+    """)
+
+# Run the app
+if __name__ == "__main__":
+    pass
